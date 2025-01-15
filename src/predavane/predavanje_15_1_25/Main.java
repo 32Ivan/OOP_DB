@@ -47,17 +47,23 @@ public class Main {
     }
 
     private static void dodajNoviGrad() {
+
         System.out.println("Unesite ime grada koji zelite dodati");
 
         String noviGrad = scanner.nextLine();
 
-        String query = "INSERT INTO Grad (Naziv) VALUES (?)";
+        ispisSvihDrzava();
+        System.out.println("Unesite ID Drzave kojoj pripada taj grad");
+        int idDrzave = scanner.nextInt();
+
+        String query = "INSERT INTO Grad (Naziv, DRzavaID) VALUES (?,?)";
 
         try (Connection connection = DBConnection.getConnection()) {
 
             PreparedStatement preparedStatement = connection.prepareStatement(query);
 
             preparedStatement.setString(1, noviGrad);
+            preparedStatement.setInt(2, idDrzave);
 
             int rowsAffected = preparedStatement.executeUpdate();
 
@@ -79,13 +85,18 @@ public class Main {
         System.out.println("Unesite ID grada kojem zelite izmjeniti ime");
 
         int idGrada = scanner.nextInt();
-        scanner.nextLine();
 
+
+        ispisSvihDrzava();
+        System.out.println("Unesite ID Drzave kojoj pripada taj grad");
+        int idDrzave = scanner.nextInt();
+        scanner.nextLine();
         System.out.println("Unesite novo ime grada ");
 
         String noviGrad = scanner.nextLine();
 
-        String query = "UPDATE Grad SET Naziv = ? where IDGrad = ?";
+
+        String query = "UPDATE Grad SET Naziv = ? WHERE IDGrad = ? AND (DrzavaID = ? OR DrzavaID IS NULL)";
 
         try (Connection connection = DBConnection.getConnection()) {
 
@@ -93,6 +104,7 @@ public class Main {
 
             preparedStatement.setString(1, noviGrad);
             preparedStatement.setInt(2, idGrada);
+            preparedStatement.setInt(3, idDrzave);
 
             int rowsAffected = preparedStatement.executeUpdate();
 
@@ -147,7 +159,28 @@ public class Main {
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
-                System.out.println("ID :  " + rs.getInt("IDGrad") + " , Naziv  " + rs.getString("Naziv"));
+                System.out.println("ID :  " + rs.getInt("IDGrad") + " , Naziv Grada : " + rs.getString("Naziv") + " , ID Drzave : " + rs.getInt("DrzavaID"));
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Exception : " + e.getMessage());
+        }
+
+    }
+
+    private static void ispisSvihDrzava() {
+
+        String query = "SELECT * FROM Drzava";
+
+
+        try (Connection connection = DBConnection.getConnection()) {
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                System.out.println("ID Drzave :  " + rs.getInt("IDDrzava") + " , Naziv  " + rs.getString("Naziv"));
             }
 
         } catch (SQLException e) {
