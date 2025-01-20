@@ -118,7 +118,7 @@ public class Main {
             String query2 = "select * from Racun WHERE BrojRacuna = ?";
             String query3 = "INSERT into Stavka (RacunID,Kolicina,ProizvodID,CijenaPoKomadu,PopustUPostocima,UkupnaCijena) VALUES (?,1,776,2024.994,0.00,2024.994000);";
             String query4 = "UPDATE Proizvod SET MinimalnaKolicinaNaSkladistu = MinimalnaKolicinaNaSkladistu - 1 WHERE IDProizvod = 776";
-
+            String query5 = "SELECT MinimalnaKolicinaNaSkladistu FROM Proizvod WHERE IDProizvod = 776";
 
             try {
                 PreparedStatement preparedStatement1 = connection.prepareStatement(query1);
@@ -143,6 +143,15 @@ public class Main {
 
                 PreparedStatement preparedStatement4 = connection.prepareStatement(query4);
                 preparedStatement4.executeUpdate();
+
+                PreparedStatement preparedStatement5 = connection.prepareStatement(query5);
+                rs = preparedStatement5.executeQuery();
+
+                int minimalnaKolicina = rs.getInt("MinimalnaKolicinaNaSkladistu");
+                if (minimalnaKolicina < 0) {
+                    throw new SQLException("Minimalna kolicina je manja od 0");
+                }
+
 
                 connection.commit();
                 System.out.println("Dodano uspjesno");
